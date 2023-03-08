@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #Caxambu
-#este Script pega os logs que sao gerados no  envio de transacoes para operadoras roteadas e gera um arquivo .txt com todas as tentativas para um determinado ID
-
+#A partir da inserção de algumas alguma informações como o nome da operadora, data e o numero da transacao, este script gera um arquivo contendo o debug da transacao citada. Este arquivo txt é disponibilizado na raiz do usuario executante (/home/orizon.local/usuario) 
+#Deve ser executado na lugo01, portanto d-1. Caso haja necessidade de gerar um script para resgate de debug do dia vigente, peço que me contate para criar algo que atenda essa necessidade
 
 # Variaveis que Armazenam dados necessarios para a extracao dos arquivos
 echo "#################################"
@@ -11,32 +11,27 @@ echo "# Insira os dados da transacao: #"
 echo "#                               #"
 echo "#################################"
 echo
-echo "insira o nome da operadora"
+echo "insira o nome da operadora (em minusculo)"
 read operadora;
-echo "insira o ano do Debug"
+echo "insira o ano (yyyy)"
 read ano
-echo "insira o mes do Debug"
+echo "insira o mes (mm)"
 read mes;
-echo "insira o dia do Debug"
+echo "insira o dia (dd)"
 read dia;
-echo "Insira a hora da transacao (hh:mm:ss) "
-read hora;
 echo "Insira o ID da transacao"
 read id;
 
 
+cd ~/
 
-	 if [[ $ano -lt `date +%Y` ]];
-       then
-			CP01=`cp /var/log/autorizador/barcelona01/log/$ano/$mes/auth${operadora}_${dia}${mes}${ano}.debug.xz /var/log/autorizador/temp/`	
-       else
-      		CP02=`cp /var/log/autorizador/barcelona01/log/xz/auth${operadora}_${dia}${mes}${ano}.debug.xz /var/log/autorizador/temp/`
-     fi
+CP=`cp /orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz ~/`
 
-cd /var/log/autorizador/temp
 
-GREP02=`xzgrep -a " $hora " auth${operadora}_${dia}${mes}${ano}.debug.xz > /var/log/autorizador/temp/auth${operadora}_${id}.txt`
+GREP_BASE=`xzgrep -m1 -a ${id} /orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz | cut -c 1-18`
+GREP01= `xzgrep -a ${GREP_BASE} /orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz > ~/auth${operadora}_${id}.txt `
 
-echo `Extrai_tudo.sh $operadora`
+remove_zip= `rm auth${operadora}_${dia}${mes}${ano}.debug.xz`
 
 chmod 777 *
+
