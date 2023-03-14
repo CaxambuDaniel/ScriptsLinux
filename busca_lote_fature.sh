@@ -1,5 +1,11 @@
 #!/bin/bash
+# Título: Extrai lotes Fature
+# Descrição: Script criado com intuito de extrair informações pertinentes a determinado lote, reduzindo o tempo gasto em uma análise. 
+# Autor: Daniel Carvalho de Souza (Caxambu)
+# Data: 14/03/2023
+# Versão: V-2.0
 
+# Início do script
 # Define uma função para imprimir mensagens de status
 print_status() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
@@ -54,3 +60,4 @@ print_status "Log encontrado no servidor $ANDALUCIA"
 print_status "Buscando ocorrência de protocolo..."
 GREP_BASE=$(xzgrep -naF "${id}" "/andalucia/${ANDALUCIA}/log/dmsf_motor_regra.debug_${ano}${mes}${dia}_${hora}.xz" | sed -n '4p')
 GREP01=$(xzgrep -aF "${GREP_BASE}" "/andalucia/${ANDALUCIA}/log/dmsf_motor_regra.debug_${ano}${mes}${dia}_${hora}.xz" | less > ~/dmsf_motor_regra.debug_${id}.txt)
+# Fim do script
