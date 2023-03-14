@@ -1,37 +1,51 @@
 #!/bin/bash
+# Título: Extrai Debug de Transações autorize
+# Descrição: Extrai informações sobre transações à serem analisadas e os adiciona em um arquivo de texto, tornando muito mais prática e assertiva a extração.
+# Autor: Daniel Carvalho de Souza (Caxambu)
+# Data: 08/03/2023
+# Versão: V-2.2
 
-#Caxambu
-#A partir da inserção de algumas alguma informações como o nome da operadora, data e o numero da transacao, este script gera um arquivo contendo o debug da transacao citada. Este arquivo txt é disponibilizado na raiz do usuario executante (/home/orizon.local/usuario) 
-#Deve ser executado na lugo01, portanto d-1. Caso haja necessidade de gerar um script para resgate de debug do dia vigente, peço que me contate para criar algo que atenda essa necessidade
-
-# Variaveis que Armazenam dados necessarios para a extracao dos arquivos
+# Solicitar entrada do usuário
 echo "#################################"
 echo "#                               #"
-echo "# Insira os dados da transacao: #"
+echo "# Insira os dados da transação: #"
 echo "#                               #"
 echo "#################################"
 echo
-echo "insira o nome da operadora (em minusculo)"
-read operadora;
-echo "insira o ano (yyyy)"
-read ano
-echo "insira o mes (mm)"
-read mes;
-echo "insira o dia (dd)"
-read dia;
-echo "Insira o ID da transacao"
-read id;
+read -p "Insira o nome da operadora (em minúsculo): " operadora
+read -p "Insira o ano (yyyy): " ano
+read -p "Insira o mês (mm): " mes
+read -p "Insira o dia (dd): " dia
+read -p "Insira o ID da transação: " id
 
+# Validar entrada do usuário
+if ! [[ "$ano" =~ ^[0-9]{4}$ ]]; then
+  echo "Ano inválido: $ano"
+  exit 1
+fi
+if ! [[ "$mes" =~ ^[0-9]{2}$ ]]; then
+  echo "Mês inválido: $mes"
+  exit 1
+fi
+if ! [[ "$dia" =~ ^[0-9]{2}$ ]]; then
+  echo "Dia inválido: $dia"
+  exit 1
+fi
 
-cd ~/
+# Extrair informações do arquivo de log
+log_file="/orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz"
+grep_base=$(xzgrep -m1 -a "$id" "$log_file" | cut -c 1-18)
+grep_output=$(xzgrep -a "$grep_base" "$log_file")
 
-CP=`cp /orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz ~/`
+# Escrever saída em arquivo de texto
+output_file="auth${operadora}_${id}.txt"
+echo "$grep_output" > "$output_file"
 
+# Excluir arquivo de log
+rm "$log_file"
 
-GREP_BASE=`xzgrep -m1 -a ${id} /orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz | cut -c 1-18`
-GREP01= `xzgrep -a ${GREP_BASE} /orzasaeprd/orzasaeprd01/log/auth${operadora}_${dia}${mes}${ano}.debug.xz > ~/auth${operadora}_${id}.txt `
+# Dar permissão de execução ao arquivo
+chmod +x "$output_file"
 
-remove_zip= `rm auth${operadora}_${dia}${mes}${ano}.debug.xz`
-
-chmod 777 *
-
+echo "Arquivo de saída: $output_file"
+# Fim do script
