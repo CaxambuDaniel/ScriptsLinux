@@ -41,9 +41,6 @@ grep_output=$(xzgrep -a "$grep_base" "$log_file")
 output_file="auth${operadora}_${id}.txt"
 echo "$grep_output" > "$output_file"
 
-# Excluir arquivo de log
-rm "$log_file"
-
 # Dar permissão de execução ao arquivo
 chmod +x "$output_file"
 
